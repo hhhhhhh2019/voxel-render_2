@@ -6,8 +6,8 @@
 Octree *octree;
 Bitmap *output;
 
-#define width 500
-#define height 400
+#define width 720
+#define height 480
 
 
 /*vec4<unsigned char> vox[12] = {

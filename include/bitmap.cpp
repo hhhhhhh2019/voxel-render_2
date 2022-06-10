@@ -70,7 +70,7 @@ public:
 		if (x < 0 || x >= info_header.width || y < 0 || y >= info_header.height) return;
 
 		//y = info_header.height - y;
-		
+
 		pixels[(x + y * info_header.width) * 3 + 0] = b;
 		pixels[(x + y * info_header.width) * 3 + 1] = g;
 		pixels[(x + y * info_header.width) * 3 + 2] = r;

@@ -46,9 +46,19 @@ public:
 	bool getVisible() {
 		if (final) return visible;
 		bool v = false;
-		for (int i = 0; i < 8; i++) v |= nodes[i].getVisible();
+		vec3f col;
+		int c = 0;
+		for (int i = 0; i < 8; i++) {
+			bool nv = nodes[i].getVisible();
+			if (nv == true) c++;
+			v |= nv;
+			col.x += nodes[i].color.x;
+			col.y += nodes[i].color.y;
+			col.z += nodes[i].color.z;
+		}
 		visible = v;
-		color = nodes[0].color;
+		vec3f nc = col / (float)c;
+		color.x = nc.x; color.y = nc.y; color.z = nc.z;
 		return visible;
 	}
 
