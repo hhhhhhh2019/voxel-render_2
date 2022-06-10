@@ -8,24 +8,24 @@ struct mat4 {
 	mat4(float a,float b,float c,float d, float e,float f,float g,float h, float i,float j,float k,float l, float m,float n,float o,float p):
 	a(a),b(b),c(c),d(d),e(e),f(f),g(g),h(h),i(i),j(j),k(k),l(l),m(m),n(n),o(o),p(p) {};
 	mat4(): a(0), b(0), c(0), d(0), e(0), f(0), g(0), h(0), i(0), j(0), k(0), l(0), m(0), n(0), o(0), p(0) {};
-	
+
 	mat4 operator*(mat4 w) {
 		return mat4(
 			a*w.a + b*w.e + c*w.i + d*w.m,
 			a*w.b + b*w.f + c*w.j + d*w.n,
 			a*w.c + b*w.g + c*w.k + d*w.o,
 			a*w.d + b*w.h + c*w.l + d*w.p,
-			
+
 			e*w.a + f*w.e + g*w.i + h*w.m,
 			e*w.b + f*w.f + g*w.j + h*w.n,
 			e*w.c + f*w.g + g*w.k + h*w.o,
 			e*w.d + f*w.h + g*w.l + h*w.p,
-			
+
 			i*w.a + j*w.e + k*w.i + l*w.m,
 			i*w.b + j*w.f + k*w.j + l*w.n,
 			i*w.c + j*w.g + k*w.k + l*w.o,
 			i*w.d + j*w.h + k*w.l + l*w.p,
-			
+
 			m*w.a + n*w.e + o*w.i + p*w.m,
 			m*w.b + n*w.f + o*w.j + p*w.n,
 			m*w.c + n*w.g + o*w.k + p*w.o,
@@ -45,11 +45,11 @@ struct mat3 {
 			a*w.a + b*w.d + c*w.g,
 			a*w.b + b*w.e + c*w.h,
 			a*w.c + b*w.f + c*w.i,
-			
+
 			d*w.a + e*w.d + f*w.g,
 			d*w.b + e*w.e + f*w.h,
 			d*w.c + e*w.f + f*w.i,
-			
+
 			g*w.a + h*w.d + i*w.g,
 			g*w.b + h*w.e + i*w.h,
 			g*w.c + h*w.f + i*w.i
@@ -78,32 +78,32 @@ mat4 rotate_from_angles(float x, float y, float z) {
 
 template<class T> struct vec2 {
 	T x, y;
-	
+
 	vec2<T>(): x(0), y(0) {};
 	vec2<T>(T _x): x(_x), y(_x) {};
 	vec2<T>(T _x, T _y): x(_x), y(_y) {};
 	vec2<T>(const vec2<T> &v) : x(T()), y(T()) { *this = v; }
-	
+
 	vec2<T> operator+(vec2<T> v) {
 		return vec2<T>(x + v.x, y + v.y);
 	}
-	
+
 	vec2<T> operator-(vec2<T> v) {
 		return vec2<T>(x - v.x, y - v.y);
 	}
-	
+
 	vec2<T> operator*(vec2<T> v) {
 		return vec2<T>(x * v.x, y * v.y);
 	}
-	
+
 	vec2<T> operator*(T v) {
 		return vec2<T>(x * v, y * v);
 	}
-	
+
 	vec2<T> operator/(vec2<T> v) {
 		return vec2<T>(x / v.x, y / v.y);
 	}
-	
+
 	vec2<T> operator/(T v) {
 		return vec2<T>(x / v, y / v);
 	}
@@ -111,12 +111,12 @@ template<class T> struct vec2 {
 
 template<class T> struct vec3 {
 	T x, y, z;
-	
+
 	vec3<T>(): x(0), y(0), z(0) {};
 	vec3<T>(T _x): x(_x), y(_x), z(_x) {};
 	vec3<T>(T _x, T _y, T _z): x(_x), y(_y), z(_z) {};
 	vec3<T>(const vec3<T> &v): x(v.x), y(v.y), z(v.z) {};
-	
+
 	vec3<T> operator+(vec3<T> v) {
 		return vec3<T>(x + v.x, y + v.y, z + v.z);
 	}
@@ -124,19 +124,19 @@ template<class T> struct vec3 {
 	vec3<T> operator+=(vec3<T> v) {
 		return vec3<T>(x + v.x, y + v.y, z + v.z);
 	}
-	
+
 	vec3<T> operator-(vec3<T> v) {
 		return vec3<T>(x - v.x, y - v.y, z - v.z);
 	}
-	
+
 	vec3<T> operator*(vec3<T> v) {
 		return vec3<T>(x * v.x, y * v.y, z * v.z);
 	}
-	
+
 	vec3<T> operator*(T v) {
 		return vec3<T>(x * v, y * v, z * v);
 	}
-	
+
 	vec3<T> operator*(mat3 m) {
 		return vec3<T>(
 			x * m.a + y * m.b + z * m.c,
@@ -144,11 +144,11 @@ template<class T> struct vec3 {
 			x * m.g + y * m.h + z * m.i
 		);
 	}
-	
+
 	vec3<T> operator/(vec3<T> v) {
 		return vec3<T>(x / v.x, y / v.y, z / v.z);
 	}
-	
+
 	vec3<T> operator/(T v) {
 		return vec3<T>(x / v, y / v, z / v);
 	}
@@ -160,28 +160,28 @@ template<class T> struct vec3 {
 
 template<class T> struct vec4 {
 	T x, y, z, w;
-	
+
 	vec4<T>(): x(0), y(0), z(0), w(0) {};
 	vec4<T>(T _x): x(_x), y(_x), z(_x), w(_x) {};
 	vec4<T>(T _x, T _y, T _z, T _w): x(_x), y(_y), z(_z), w(_w) {};
 	vec4<T>(const vec4<T> &v): x(v.x), y(v.y), z(v.z), w(v.w) {};
-	
+
 	vec4<T> operator+(vec4<T> v) {
 		return vec4<T>(x + v.x, y + v.y, z + v.z, w + v.w);
 	}
-	
+
 	vec4<T> operator-(vec4<T> v) {
 		return vec4<T>(x - v.x, y - v.y, z - v.z, w - v.w);
 	}
-	
+
 	vec4<T> operator*(vec4<T> v) {
 		return vec4<T>(x * v.x, y * v.y, z * v.z, w * v.w);
 	}
-	
+
 	vec4<T> operator*(T v) {
 		return vec4<T>(x * v, y * v, z * v, w * v);
 	}
-	
+
 	vec4<T> operator*(mat4 m) {
 		return vec4<T>(
 			x * m.a + y * m.b + z * m.c + w * m.d,
@@ -190,11 +190,11 @@ template<class T> struct vec4 {
 			x * m.m + y * m.n + z * m.o + w * m.p
 		);
 	}
-	
+
 	vec4<T> operator/(vec4<T> v) {
 		return vec4<T>(x / v.x, y / v.y, z / v.z, w / v.w);
 	}
-	
+
 	vec4<T> operator/(T v) {
 		return vec4<T>(x / v, y / v, z / v, w / v);
 	}
@@ -257,9 +257,9 @@ vec3f step(vec3f e, vec3f x) {
 	return r;
 }
 
-float abs(float v) {
+/*float abs(float v) {
 	return v < 0 ? v * -1 : v;
-}
+}*/
 
 vec3f abs(vec3f v) {
 	vec3f r(abs(v.x), abs(v.y), abs(v.z));

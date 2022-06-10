@@ -34,7 +34,7 @@ private:
 	unsigned int size;
 
 public:
-	vec3<unsigned char> color = vec3<unsigned char>(0);
+	vec3f color = vec3f(0);
 	bool visible = false;
 
 	Node() {} //{color.x = rand() & 255;visible = rand() & 1;}
@@ -81,23 +81,23 @@ public:
 	Node* get(int id) {return &nodes[id];}
 	Node* operator[](int id) {return get(id);}
 
-	vec4<unsigned char> trayce(vec3f ro, vec3f rd, vec2f &pit, int d) {
-		if (visible == false) return vec4<unsigned char>(0);
+	vec4f trayce(vec3f ro, vec3f rd, vec2f &pit, int d) {
+		if (visible == false) return vec4f(0);
 		vec2f it = box(ro, rd, vec3f(size));
-		if (it.x == -1) return vec4<unsigned char>(0);
+		if (it.x == -1) return vec4f(0);
 		pit = it;
 		if (size == 1 || d == 1 || final)
-			return vec4<unsigned char>(color.x, color.y, color.z, 1);
+			return vec4f(color.x, color.y, color.z, 1);
 
 		vec2f minIt(it.y);
-		vec4<unsigned char> res;
+		vec4f res;
 
 		for (int i = 0; i < 8; i++) {
 			float x = (float)(i % 2)     - 0.5;
 			float y = (float)(i % 4 / 2) - 0.5;
 			float z = (float)(i / 4)     - 0.5;
 
-			vec4<unsigned char> col = nodes[i].trayce(ro - vec3(x,y,z) * size, rd, it, d - 1);
+			vec4f col = nodes[i].trayce(ro - vec3(x,y,z) * size, rd, it, d - 1);
 			if (col.w != 0 && it.x < minIt.x) {
 				res = col;
 				minIt = it;
@@ -134,20 +134,20 @@ public:
 	Node* get(int id) {return &nodes[id];}
 	Node* operator[](int id) {return get(id);}
 
-	vec4<unsigned char> trayce(vec3f ro, vec3f rd, int d) {
+	vec4f trayce(vec3f ro, vec3f rd, int d) {
 		vec2f it = box(ro, rd, vec3f(size));
-		if (it.x == -1) return vec4<unsigned char>(0);
-		if (d == 1) return vec4<unsigned char>(255,255,255,1);
+		if (it.x == -1) return vec4f(0);
+		if (d == 1) return vec4f(255,255,255,1);
 
 		vec2f minIt(it.y);
-		vec4<unsigned char> res;
+		vec4f res;
 
 		for (int i = 0; i < 8; i++) {
 			float x = (float)(i % 2)     - 0.5;
 			float y = (float)(i % 4 / 2) - 0.5;
 			float z = (float)(i / 4)     - 0.5;
 
-			vec4<unsigned char> col = nodes[i].trayce(ro - vec3(x,y,z) * size, rd, it, d - 1);
+			vec4f col = nodes[i].trayce(ro - vec3(x,y,z) * size, rd, it, d - 1);
 			if (col.w != 0 && it.x < minIt.x) {
 				res = col;
 				minIt = it;
@@ -162,7 +162,7 @@ public:
 int max(int a, int b) {return a < b ? b : a;}
 
 
-Octree* makeOctreeFromArray(vec4<unsigned char> *arr, int w, int h, int d) {
+Octree* makeOctreeFromArray(vec4f *arr, int w, int h, int d) {
 	int s = max(max(degree(w), degree(h)), degree(d));
 	Octree* res = new Octree(s);
 
@@ -173,7 +173,7 @@ Octree* makeOctreeFromArray(vec4<unsigned char> *arr, int w, int h, int d) {
 
 		int id = x + y * s + z * s * s;
 
-		res->get(id)->color = vec3<unsigned char>(arr[i].x,arr[i].y,arr[i].z);
+		res->get(id)->color = vec3f(arr[i].x,arr[i].y,arr[i].z);
 		res->get(id)->visible = arr[i].w;
 
 		printf("%i %i %i %i\n", x, y, z, id);
