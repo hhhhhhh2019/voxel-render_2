@@ -110,11 +110,9 @@ public:
 
 
 struct Octree {
-private:
 	Node *nodes;
 	unsigned int size;
 
-public:
 	Octree(unsigned int s): size(s) {
 		if (s < 2) {
 			printf("size must be >= 2\n");
@@ -157,27 +155,3 @@ public:
 		return res;
 	}
 };
-
-
-int max(int a, int b) {return a < b ? b : a;}
-
-
-Octree* makeOctreeFromArray(vec4f *arr, int w, int h, int d) {
-	int s = max(max(degree(w), degree(h)), degree(d));
-	Octree* res = new Octree(s);
-
-	for (int i = 0; i < w * h * d; i++) {
-		int x = i % w;
-		int y = i % (w * h) / w;
-		int z = i / w / h;
-
-		int id = x + y * s + z * s * s;
-
-		res->get(id)->color = vec3f(arr[i].x,arr[i].y,arr[i].z);
-		res->get(id)->visible = arr[i].w;
-
-		printf("%i %i %i %i\n", x, y, z, id);
-	}
-
-	return res;
-}

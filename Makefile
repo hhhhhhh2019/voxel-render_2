@@ -1,3 +1,3 @@
 all:
-	g++ -g main.cpp glad.c -o main -I "./include" -lOpenCL -ldl -lglfw -lGL
+	g++ -g main.cpp -o main -I "./include" -lOpenCL -lsfml-graphics -lsfml-system -lsfml-window
 	./main

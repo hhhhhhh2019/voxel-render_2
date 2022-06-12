@@ -4,79 +4,19 @@
 
 #include <utils.cpp>
 #include <octree.cpp>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <SFML/Graphics.hpp>
 
 
-#define width 720
-#define height 480
+using namespace sf;
+
+
+#define width 1280
+#define height 1024
 
 
 Octree *octree;
 char* kernel_prog;
 vec3f output[width * height];
-
-
-
-void processInput(GLFWwindow*);
-void framebuffer_size_callback(GLFWwindow*, int, int);
-
-
-char* frag_shader_data;
-char* vert_shader_data;
-unsigned int frag_shader;
-unsigned int vert_shader;
-unsigned int shader_prog;
-
-int initShaders() {
-	frag_shader_data = read_file((char*)"shader.frag");
-	vert_shader_data = read_file((char*)"shader.vert");
-
-	vert_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vert_shader, 1, &vert_shader_data, NULL);
-	glCompileShader(vert_shader);
-
-	int success;
-	char infoLog[512];
-	glGetShaderiv(vert_shader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(vert_shader, 512, NULL, infoLog);
-		printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n");
-		printf(infoLog);
-		printf("\n");
-		return 0;
-	}
-
-	frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(frag_shader, 1, &frag_shader_data, NULL);
-	glCompileShader(frag_shader);
-
-	glGetShaderiv(frag_shader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		glGetShaderInfoLog(frag_shader, 512, NULL, infoLog);
-		printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n");
-		printf(infoLog);
-		printf("\n");
-		return 0;
-	}
-
-	shader_prog = glCreateProgram();
-	glAttachShader(shader_prog, vert_shader);
-	glAttachShader(shader_prog, frag_shader);
-	glLinkProgram(shader_prog);
-	glGetProgramiv(shader_prog, GL_LINK_STATUS, &success);
-	if (!success) {
-		glGetProgramInfoLog(shader_prog, 512, NULL, infoLog);
-		printf("ERROR::SHADER::PROGRAM::LINKING_FAILED\n");
-		printf(infoLog);
-		printf("\n");
-		return 0;
-	}
-	glDeleteShader(vert_shader);
-	glDeleteShader(frag_shader);
-
-	return 1;
-}
 
 
 int main() {
@@ -183,7 +123,7 @@ int main() {
     return -1;
   }
 
-	cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer> kernel(program, "kmain", &err);
+	cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer> kernel(program, "kmain", &err);
 
 	if (err != CL_SUCCESS) {
 		printf("Unable to create kernel!\nError: %i", err);
@@ -191,88 +131,135 @@ int main() {
 	}
 
 
-	printf("Init glfw\n");
+	Font font;
+	if (!font.loadFromFile("/usr/share/fonts/adobe-source-code-pro/SourceCodePro-Medium.otf")) return -1;
+	Text text;
+	text.setFont(font);
+	text.setCharacterSize(12);
+	text.setFillColor(Color::Red);
 
-	glfwInit();
+	Clock clock;
+	float lastTime = 0;
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	RenderWindow window(VideoMode(width, height), "window", Style::Fullscreen);
+	window.setFramerateLimit(60);
+	window.setMouseCursorVisible(false);
 
-	GLFWwindow* window = glfwCreateWindow(width, height, "window", NULL, NULL);
+	Mouse::setPosition(Vector2i(width / 2, height / 2), window);
 
-	if (window == NULL) {
-		printf("Failed to create window\n");
-		glfwTerminate();
-		return -1;
-	}
-
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-		printf("Failed to initialize GLAD\n");
-		return -1;
-	}
-
-	if (!initShaders()) {
-		printf("Failed to initialize shaders\n");
-		return -1;
-	}
-
-	vec3f ro(0,0,0);
+	vec3f ro(0,0,-10);
 	vec3f rot(0,0,0);
+	vec3f vel;
+	float cam_speed = 0.2;
+	float cam_rot = 0.01;
 
-	cl::Buffer roBuf(&ro, &ro + sizeof(float) * 3, true);
-	cl::Buffer rotBuf(&rot, &rot + sizeof(float) * 3, true);
+	int _w = width;
+	int _h = height;
+
+	//cl::Buffer roBuf(&ro, &ro + sizeof(float) * 3, true);
+	cl::Buffer roBuf(context, CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(float) * 3);
+	//cl::Buffer rotBuf(&rot, &rot + sizeof(float) * 3, true);
+	cl::Buffer rotBuf(context, CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(float) * 9);
 	cl::Buffer outBuf(std::begin(output), std::end(output), true);
+	cl::Buffer widthBuf(&_w, &_w + sizeof(int), true);
+	cl::Buffer heightBuf(&_h, &_h + sizeof(int), true);
+	//cl::Buffer objBuf(&octree, &octree + sizeof(octree), true);
+	printf("%i\n", sizeof(octree));
+	cl::Buffer objBuf(context, CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(octree));
 
-	unsigned char *pixels[width * height * 3];
+	unsigned char pixels[width * height * 4];
 
-	while (!glfwWindowShouldClose(window)) {
-		processInput(window);
+	while (window.isOpen()) {
+		Event event;
+		while (window.pollEvent(event)) {
+			if (event.type == Event::Closed) {
+				window.close();
+			}
+			else if (event.type == Event::MouseMoved) {
+				float mx = event.mouseMove.x - width / 2;
+				float my = event.mouseMove.y - height / 2;
 
-		glBindTexture(GL_TEXTURE_2D, 1);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+				rot.x -= my * cam_rot;
+				rot.y -= mx * cam_rot;
+			}
+			else if (event.type == Event::KeyPressed) {
+				if (event.key.code == Keyboard::Escape) {
+					window.setMouseCursorVisible(true);
+					window.close();
+				}
+				else if (event.key.code == Keyboard::W) vel.z = cam_speed;
+				else if (event.key.code == Keyboard::A) vel.x = -cam_speed;
+				else if (event.key.code == Keyboard::S) vel.z = -cam_speed;
+				else if (event.key.code == Keyboard::D) vel.x = cam_speed;
+				else if (event.key.code == Keyboard::Q) vel.y = -cam_speed;
+				else if (event.key.code == Keyboard::E) vel.y = cam_speed;
+			}
+			else if (event.type == Event::KeyReleased) {
+				if (event.key.code == Keyboard::W) vel.z = 0;
+				else if (event.key.code == Keyboard::A) vel.x = 0;
+				else if (event.key.code == Keyboard::S) vel.z = 0;
+				else if (event.key.code == Keyboard::D) vel.x = 0;
+				else if (event.key.code == Keyboard::Q) vel.y = 0;
+				else if (event.key.code == Keyboard::E) vel.y = 0;
+			}
+		}
 
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		mat3 rot_mat = mat3(
+			cos(rot.z), -sin(rot.z), 0,
+			sin(rot.z), cos(rot.z), 0,
+			0,       0, 1
+		) * mat3(
+			cos(rot.y), 0, -sin(rot.y),
+			0,      1, 0,
+			sin(rot.y), 0, cos(rot.y)
+		) * mat3(
+			1,       0, 0,
+			0, cos(rot.x), -sin(rot.x),
+			0, sin(rot.x), cos(rot.x)
+		);
 
-		glMatrixMode(GL_MODELVIEW);
+		ro = ro + vel * rot_mat;
 
-		/*glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(-1,1,1,-1,1,100);
-		glMatrixMode(GL_MODELVIEW);
+		clEnqueueWriteBuffer(queue(), roBuf(),  true, 0, sizeof(float) * 3, &ro,  0, NULL, NULL);
+		clEnqueueWriteBuffer(queue(), rotBuf(), true, 0, sizeof(float) * 9, &rot_mat, 0, NULL, NULL);
+		clEnqueueWriteBuffer(queue(), objBuf(), true, 0, sizeof(octree), &octree, 0, NULL, NULL);
 
-		glLoadIdentity();
-		glBegin(GL_QUADS);
-		glTexCoord2f(0,1);
-		glVertex3f(-1,-1,-1);
-		glTexCoord2f(0,0);
-		glVertex3f(-1,1,-1);
-		glTexCoord2f(1,0);
-		glVertex3f(1,1,-1);
-		glTexCoord2f(1,1);
-		glVertex3f(1,-1,-1);
-		glEnd();*/
+		kernel(cl::EnqueueArgs(cl::NDRange(width * height)),
+					roBuf, rotBuf, outBuf, widthBuf, heightBuf, objBuf);
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		cl::copy(outBuf, std::begin(output), std::end(output));
+
+		for (int i = 0; i < width * height; i++) {
+			pixels[i * 4 + 0] = output[i].x * 255;
+			pixels[i * 4 + 1] = output[i].y * 255;
+			pixels[i * 4 + 2] = output[i].z * 255;
+			pixels[i * 4 + 3] = 255;
+		}
+
+		window.clear();
+
+		Image img;
+		img.create(width, height, pixels);
+
+		Texture texture;
+		texture.loadFromImage(img);
+		Sprite sprite;
+		sprite.setTexture(texture, true);
+
+		window.draw(sprite);
+
+
+		float currentTime = clock.getElapsedTime().asSeconds();
+		float fps = 1.f / (currentTime - lastTime);
+		lastTime = currentTime;
+
+		text.setString(std::to_string(fps));
+
+		window.draw(text);
+
+		window.display();
+
+
+		Mouse::setPosition(Vector2i(width / 2, height / 2), window);
 	}
-
-	glfwTerminate();
-}
-
-
-void processInput(GLFWwindow *window) {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, true);
-}
-
-void framebuffer_size_callback(GLFWwindow* window, int _width, int _height) {
-	printf("width: %i, height: %i\n", _width, _height);
-	glViewport(0, 0, _width, _height);
 }

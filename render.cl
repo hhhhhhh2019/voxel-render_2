@@ -1,11 +1,18 @@
 typedef __attribute__ ((packed)) struct {
+	float x, y;
+} vec2f;
+
+typedef __attribute__ ((packed)) struct {
 	float x, y, z;
 } vec3f;
 
 typedef __attribute__ ((packed)) struct {
+	float x, y, z, w;
+} vec4f;
+
+typedef __attribute__ ((packed)) struct {
 	float a, b, c,  d, e, f,  g, h, i;
 } mat3;
-
 
 struct Node {
 	struct Node *nodes;
@@ -15,6 +22,7 @@ struct Node {
 	vec3f color;
 	bool visible;
 };
+
 
 struct Octree {
 	struct Node *nodes;
@@ -70,6 +78,42 @@ vec3f mulVec3fFloat(vec3f a, float b) {
 	return res;
 }
 
+vec3f divVec3fVec3f(vec3f a, vec3f b) {
+	vec3f res;
+
+	res.x = a.x / b.x;
+	res.y = a.y / b.y;
+	res.z = a.z / b.z;
+
+	return res;
+}
+
+vec3f divVec3fFloat(vec3f a, float b) {
+	vec3f res;
+
+	res.x = a.x / b;
+	res.y = a.y / b;
+	res.z = a.z / b;
+
+	return res;
+}
+
+vec3f sumVec3fVec3f(vec3f a, vec3f b) {
+	vec3f res;
+	res.x = a.x + b.x;
+	res.y = a.y + b.y;
+	res.z = a.z + b.z;
+	return res;
+}
+
+vec3f subVec3fVec3f(vec3f a, vec3f b) {
+	vec3f res;
+	res.x = a.x - b.x;
+	res.y = a.y - b.y;
+	res.z = a.z - b.z;
+	return res;
+}
+
 mat3 rotMat3FromVec3f(vec3f v) {
 	mat3 a;
 	mat3 b;
@@ -91,6 +135,108 @@ mat3 rotMat3FromVec3f(vec3f v) {
 }
 
 
-kernel void kmain(global vec3f *ro, global vec3f *rot, global vec3f *output) {
+float length(vec3f v) {
+	return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+}
 
+vec3f normalize(vec3f v) {
+	return divVec3fFloat(v, length(v));
+}
+
+float abs(float v) {
+	if (v < 0) return -v;
+	return v;
+}
+
+vec3f vabs(vec3f v) {
+	vec3f res;
+	res.x = abs(v.x); res.y = abs(v.y); res.z = abs(v.z);
+	return res;
+}
+
+float dot(vec3f a, vec3f b) {
+	return a.x * b.x + a.y * b.y + a.z * b.y;
+}
+
+vec2f box(vec3f ro, vec3f rd, vec3f rad) {//, vec3f& oN)  {
+	vec3f m; m.x = 1; m.y = 1; m.z = 1;
+	vec3f n;
+	vec3f k;
+	vec3f t1;
+	vec3f t2;
+	float tN;
+	float tF;
+	vec2f res; res.x = -1; res.y = -1;
+
+	m = divVec3fVec3f(m, rd);
+	n = mulVec3fVec3f(m, ro);
+	n.x = -n.x; n.y = -n.y; n.z = -n.z;
+	k = mulVec3fVec3f(rad, vabs(m));
+	t1 = subVec3fVec3f(n, k);
+	t2 = sumVec3fVec3f(n, k);
+	tN = max(max(t1.x, t1.y), t1.z);
+	tF = min(min(t2.x, t2.y), t2.z);
+
+	if(tN > tF || tF < 0.0) return res;
+
+	res.x = tN; res.y = tF;
+	return res;
+	//oN = (vec3f(0)-sign(rd)) * step(vec3f(t1.y, t1.z, t1.x), t1) * step(vec3f(t1.z, t1.x, t1.y), t1);
+}
+
+
+vec4f trayce(vec3f ro, vec3f rd, struct Node *node) {
+	vec4f res = {0,0,0,0}; vec2f it; vec3f size = {node->size,node->size,node->size};
+}
+
+
+vec3f render(vec3f ro, vec3f rd, struct Octree *oct, int d) {
+	vec3f res = {0,0,0}; vec2f it; vec3f size = {oct->size,oct->size,oct->size};
+	it = box(ro, rd, size);
+	if (it.x < 0) return res;
+	if (d == 1) {
+		res.x = 1./it.x; res.y = 1./it.x; res.z = 1./it.x;
+		return res;
+	}
+
+	for (int i = 0; i < 8; i++) {
+		vec4f col;
+		vec3f nro;
+		vec3f ofst = {
+			(float)(i % 2)     - 0.5,
+			(float)(i % 4 / 2) - 0.5,
+			(float)(i / 4)     - 0.5
+		};
+		nro = sumVec3fVec3f(ro, ofst);
+		col = trayce(nro, rd, &(oct->nodes[i]));
+		if (col.w == 1) {
+			res.x = col.x; res.y = col.y; res.z = col.z;
+		}
+	}
+
+	return res;
+}
+
+kernel void kmain(
+	global vec3f *ro, global mat3 *rot,
+	global vec3f *output, global int *_width, global int *_height,
+	global struct Octree *oct) {
+
+	int width = *_width;
+	int height = *_height;
+	int id = get_global_id(0);
+	int x = id % width;
+	int y = id / width;
+
+	float u = (float)x / width  * 2. - 1.;
+	float v = (float)y / height * 2. - 1.;
+
+	u *= (float)width / height;
+
+	vec3f rd; rd.x = u; rd.y = v; rd.z = 1;
+	rd = mulVec3fMat3(normalize(rd), *rot);
+
+	vec3f col = {oct->size, oct->size, oct->size};
+	//col = render(*ro, rd, oct, 1);
+	output[id] = col;
 }
