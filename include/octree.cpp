@@ -1,23 +1,15 @@
-#pragma once
+#ifndef _OCTREE
+#define _OCTREE
+
 
 #include <vector.cpp>
 
 
-int degree(int x) {
-	int r = 2;
-	while (x != r) {
-		if ((float)x / r > 1.0f) r *= 2;
-		else x++;
-	}
-	return r;
-}
-
-
-vec2f box(vec3f ro, vec3f rd, vec3f rad) {//, vec3f& oN)  {
+vec2f box(vec3f ro, vec3f rd, vec3f rad) { //, vec3f& oN)  {
 	vec3f m = vec3f(1.0) / rd;
 	vec3f n = m * ro;
 	vec3f k = rad * abs(m);
-	vec3f t1 = vec3f(0)-n - k;
+	vec3f t1 = -n - k;
 	vec3f t2 = vec3f(0)-n + k;
 	float tN = fmax(fmax(t1.x, t1.y), t1.z);
 	float tF = fmin(fmin(t2.x, t2.y), t2.z);
@@ -27,131 +19,104 @@ vec2f box(vec3f ro, vec3f rd, vec3f rad) {//, vec3f& oN)  {
 }
 
 
+int getSize(int n) {
+	int r = 1;
+
+	for (int i = 0; i < n; i++) r *= 2;
+
+	return r;
+}
+
+
 struct Node {
-private:
-	Node *nodes;
-	bool final = true;
-	unsigned int size;
+	Node* childs;
+	int size;
+	char finish;
+	char visible = 1;
+	vec3<unsigned char> color;
 
-public:
-	vec3f color = vec3f(0);
-	bool visible = false;
+	int id;
 
-	Node() {} //{color.x = rand() & 255;visible = rand() & 1;}
-	~Node() {
-		if (final == true) return;
-		delete[] nodes;
+	Node(){}
+	Node (int _size, int _id, char *m) {init(_size, _id, m);}
+
+	void init(int _size, int _id, char *m) {
+		id = _id;
+
+		size = getSize(_size - 1);
+		color = vec3<unsigned char>(
+			rand() & 255,
+			rand() & 255,
+			rand() & 255
+		);
+
+		if (_size == 1) {
+			finish = 1;
+			visible = m[id];
+			//printf("%i ", id);
+		} else {
+			childs = new Node[8];
+			for (int i = 0; i < 8; i++)
+				childs[i].init(_size - 1, _id * (int)(pow(8, _size - 1)) + i, m);
+		}
 	}
 
-	bool getVisible() {
-		if (final) return visible;
-		bool v = false;
-		vec3f col;
-		int c = 0;
+	Node* get(int id) {
+		return &(childs[id]);
+	}
+
+	char getVisible() {
+		if (size == 1) return visible;
+
+		visible = 0;
+
 		for (int i = 0; i < 8; i++) {
-			bool nv = nodes[i].getVisible();
-			if (nv == true) c++;
-			v |= nv;
-			col.x += nodes[i].color.x;
-			col.y += nodes[i].color.y;
-			col.z += nodes[i].color.z;
+			if (childs[i].getVisible() == 1) {
+				visible = 1;
+			}
 		}
-		visible = v;
-		vec3f nc = col / (float)c;
-		color.x = nc.x; color.y = nc.y; color.z = nc.z;
+
+		if (visible == 0 || size == 1) finish = 1;
+		else finish = 0;
+
+		printf("%i\n", visible);
+
 		return visible;
 	}
 
-	void set_size(unsigned int s) {
-		size = s;
-		if (s == 1) final = true;
-	}
+	vec4<unsigned char> trayce(vec3f ro, vec3f rd, vec2f &pit, int d) {
+		if (visible == 0)
+			return vec4<unsigned char>(0);
 
-	bool isFinal() {return final;}
-	void setFinal(bool v) {
-		if (final == v || size == 1) return;
-		final = v;
-		if (v == false) {
-			nodes = new Node[8];
-			for (int i = 0; i < 8; i++) nodes[i].set_size(size / 2);
-		}
-		else delete[] nodes;
-	}
-
-	Node* get(int id) {return &nodes[id];}
-	Node* operator[](int id) {return get(id);}
-
-	vec4f trayce(vec3f ro, vec3f rd, vec2f &pit, int d) {
-		if (visible == false) return vec4f(0);
 		vec2f it = box(ro, rd, vec3f(size));
-		if (it.x == -1) return vec4f(0);
-		pit = it;
-		if (size == 1 || d == 1 || final)
-			return vec4f(color.x, color.y, color.z, 1);
+		if (it.x < 0 || pit.x < it.x) {
+			//if (visible == 0)
+				return vec4<unsigned char>(0);
+		}
 
-		vec2f minIt(it.y);
-		vec4f res;
+		if (d == 1 || finish == 1) {
+			pit = it;
+			return vec4<unsigned char>(color.x,color.y,color.z, 1);
+		}
+
+		vec4<unsigned char> res;
+		vec2f nit(it.y + 1);
 
 		for (int i = 0; i < 8; i++) {
 			float x = (float)(i % 2)     - 0.5;
 			float y = (float)(i % 4 / 2) - 0.5;
 			float z = (float)(i / 4)     - 0.5;
 
-			vec4f col = nodes[i].trayce(ro - vec3(x,y,z) * size, rd, it, d - 1);
-			if (col.w != 0 && it.x < minIt.x) {
-				res = col;
-				minIt = it;
-			}
+			vec4<unsigned char> c = childs[i].trayce(ro - vec3f(x,y,z) * size, rd, nit, d - 1);
+
+			if (c.w == 1) res = c;
 		}
+
+		pit = nit;
 
 		return res;
 	}
 };
 
 
-struct Octree {
-	Node *nodes;
-	unsigned int size;
-
-	Octree(unsigned int s): size(s) {
-		if (s < 2) {
-			printf("size must be >= 2\n");
-			delete this;
-			return;
-		}
-
-		nodes = new Node[8];
-
-		for (int i = 0; i < 8; i++) nodes[i].set_size(size / 2);
-	}
-
-	void getVisible() {
-		for (int i = 0; i < 8; i++) nodes[i].getVisible();
-	}
-
-	Node* get(int id) {return &nodes[id];}
-	Node* operator[](int id) {return get(id);}
-
-	vec4f trayce(vec3f ro, vec3f rd, int d) {
-		vec2f it = box(ro, rd, vec3f(size));
-		if (it.x == -1) return vec4f(0);
-		if (d == 1) return vec4f(255,255,255,1);
-
-		vec2f minIt(it.y);
-		vec4f res;
-
-		for (int i = 0; i < 8; i++) {
-			float x = (float)(i % 2)     - 0.5;
-			float y = (float)(i % 4 / 2) - 0.5;
-			float z = (float)(i / 4)     - 0.5;
-
-			vec4f col = nodes[i].trayce(ro - vec3(x,y,z) * size, rd, it, d - 1);
-			if (col.w != 0 && it.x < minIt.x) {
-				res = col;
-				minIt = it;
-			}
-		}
-
-		return res;
-	}
-};
+#endif

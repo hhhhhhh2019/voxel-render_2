@@ -1,7 +1,3 @@
-#define CL_HPP_ENABLE_EXCEPTIONS
-#define CL_HPP_TARGET_OPENCL_VERSION 200
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-
 #include <utils.cpp>
 #include <octree.cpp>
 #include <SFML/Graphics.hpp>
@@ -10,14 +6,20 @@
 using namespace sf;
 
 
-#define width 1280
-#define height 1024
+#define width  360
+#define height 240
 
 
-Octree *octree;
-char* kernel_prog;
+Node *octree;
+char *kernel_prog;
 vec3f output[width * height];
 
+char model[64] = {
+	1,1,1,1, 1,1,1,1, 1,1,1,1, 0,0,0,0,
+	1,1,1,1, 1,1,1,1, 1,1,1,1, 0,0,0,0,
+	1,1,1,1, 1,1,1,1, 1,1,1,1, 0,0,0,0,
+	1,1,1,1, 1,1,1,1, 1,1,1,1, 0,0,0,0
+};
 
 int main() {
 	kernel_prog = read_file((char*)"render.cl");
@@ -25,36 +27,7 @@ int main() {
 	srand(time(NULL));
 
 
-	octree = new Octree(4);
-	octree->get(0)->setFinal(false);
-	octree->get(2)->setFinal(false);
-	octree->get(3)->setFinal(false);
-	octree->get(6)->setFinal(false);
-
-	octree->get(0)->get(0)->visible = true;
-	octree->get(0)->get(0)->color = vec3f(255,255,255);
-	octree->get(0)->get(2)->visible = true;
-	octree->get(0)->get(2)->color = vec3f(255,255,255);
-	octree->get(0)->get(3)->visible = true;
-	octree->get(0)->get(3)->color = vec3f(255,255,255);
-
-	octree->get(2)->get(1)->visible = true;
-	octree->get(2)->get(1)->color = vec3f(255,255,255);
-	octree->get(2)->get(5)->visible = true;
-	octree->get(2)->get(5)->color = vec3f(255,255,255);
-
-	octree->get(3)->get(0)->visible = true;
-	octree->get(3)->get(0)->color = vec3f(255,255,255);
-	octree->get(3)->get(2)->visible = true;
-	octree->get(3)->get(2)->color = vec3f(255,255,255);
-	octree->get(3)->get(3)->visible = true;
-	octree->get(3)->get(3)->color = vec3f(255,255,255);
-
-	octree->get(6)->get(1)->visible = true;
-	octree->get(6)->get(1)->color = vec3f(255,255,255);
-
-	octree->get(4)->visible = true;
-	octree->get(4)->color = vec3f(255,255,255);
+	octree = new Node(3, 0, model);
 
 	octree->getVisible();
 
@@ -123,7 +96,7 @@ int main() {
     return -1;
   }
 
-	cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer> kernel(program, "kmain", &err);
+	cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer> kernel(program, "kmain", &err);
 
 	if (err != CL_SUCCESS) {
 		printf("Unable to create kernel!\nError: %i", err);
@@ -141,7 +114,7 @@ int main() {
 	Clock clock;
 	float lastTime = 0;
 
-	RenderWindow window(VideoMode(width, height), "window", Style::Fullscreen);
+	RenderWindow window(VideoMode(width, height), "window");//, Style::Fullscreen);
 	window.setFramerateLimit(60);
 	window.setMouseCursorVisible(false);
 
@@ -156,16 +129,13 @@ int main() {
 	int _w = width;
 	int _h = height;
 
-	//cl::Buffer roBuf(&ro, &ro + sizeof(float) * 3, true);
 	cl::Buffer roBuf(context, CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(float) * 3);
-	//cl::Buffer rotBuf(&rot, &rot + sizeof(float) * 3, true);
 	cl::Buffer rotBuf(context, CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(float) * 9);
 	cl::Buffer outBuf(std::begin(output), std::end(output), true);
 	cl::Buffer widthBuf(&_w, &_w + sizeof(int), true);
 	cl::Buffer heightBuf(&_h, &_h + sizeof(int), true);
-	//cl::Buffer objBuf(&octree, &octree + sizeof(octree), true);
-	printf("%i\n", sizeof(octree));
-	cl::Buffer objBuf(context, CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(octree));
+	cl::Buffer objBuf(context, CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(char) * 64);
+	cl::Buffer cache(context, CL_MEM_READ_WRITE, sizeof(char) * 30 * 16);
 
 	unsigned char pixels[width * height * 4];
 
@@ -220,12 +190,14 @@ int main() {
 
 		ro = ro + vel * rot_mat;
 
+		window.clear();
+
 		clEnqueueWriteBuffer(queue(), roBuf(),  true, 0, sizeof(float) * 3, &ro,  0, NULL, NULL);
 		clEnqueueWriteBuffer(queue(), rotBuf(), true, 0, sizeof(float) * 9, &rot_mat, 0, NULL, NULL);
-		clEnqueueWriteBuffer(queue(), objBuf(), true, 0, sizeof(octree), &octree, 0, NULL, NULL);
+		clEnqueueWriteBuffer(queue(), objBuf(), true, 0, sizeof(char) * 64, &model, 0, NULL, NULL);
 
 		kernel(cl::EnqueueArgs(cl::NDRange(width * height)),
-					roBuf, rotBuf, outBuf, widthBuf, heightBuf, objBuf);
+			roBuf, rotBuf, outBuf, widthBuf, heightBuf, objBuf, cache);
 
 		cl::copy(outBuf, std::begin(output), std::end(output));
 
@@ -236,8 +208,6 @@ int main() {
 			pixels[i * 4 + 3] = 255;
 		}
 
-		window.clear();
-
 		Image img;
 		img.create(width, height, pixels);
 
@@ -245,8 +215,6 @@ int main() {
 		texture.loadFromImage(img);
 		Sprite sprite;
 		sprite.setTexture(texture, true);
-
-		window.draw(sprite);
 
 
 		float currentTime = clock.getElapsedTime().asSeconds();

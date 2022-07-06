@@ -14,20 +14,51 @@ typedef __attribute__ ((packed)) struct {
 	float a, b, c,  d, e, f,  g, h, i;
 } mat3;
 
+
+void *mallocArray;
+int mallocArrayFst = 0;
+
+void* malloc() {
+	return &mallocArray + mallocArrayFst;
+}
+
+
 struct Node {
-	struct Node *nodes;
-	bool final;
-	unsigned int size;
-
+	struct Node *childs;
+	int size;
+	char finish;
+	char visible;// = 1;
 	vec3f color;
-	bool visible;
+
+	int id;
 };
 
+int getSize(int n) {
+	int r = 1;
+	for (int i = 0; i < n; i++) r *= 2;
+	return r;
+}
 
-struct Octree {
-	struct Node *nodes;
-	unsigned int size;
-};
+int pow(int a, int b) {
+	if (b == 0) return 1;
+	for (int i = 0; i < b; i++) a *= a;
+	return a;
+}
+
+void initNode(struct Node *node, int _size, int _id, char *m) {
+	node->size = getSize(_size - 1);
+	node->id = _id;
+	node->color.x = 1; node->color.y = 1; node->color.z = 1;
+
+	if (_size == 1) node->finish = 1;
+	else {
+		node->childs = malloc();
+
+		for (int i = 0; i < 8; i++) {
+			initNode(&node->childs[i], _size - 1, _id * (int)(pow(8, _size - 1)) + i, m);
+		}
+	}
+}
 
 
 mat3 mulMat3Mat3(mat3 a, mat3 b) {
@@ -184,43 +215,17 @@ vec2f box(vec3f ro, vec3f rd, vec3f rad) {//, vec3f& oN)  {
 	//oN = (vec3f(0)-sign(rd)) * step(vec3f(t1.y, t1.z, t1.x), t1) * step(vec3f(t1.z, t1.x, t1.y), t1);
 }
 
-
-vec4f trayce(vec3f ro, vec3f rd, struct Node *node) {
-	vec4f res = {0,0,0,0}; vec2f it; vec3f size = {node->size,node->size,node->size};
-}
-
-
-vec3f render(vec3f ro, vec3f rd, struct Octree *oct, int d) {
-	vec3f res = {0,0,0}; vec2f it; vec3f size = {oct->size,oct->size,oct->size};
-	it = box(ro, rd, size);
-	if (it.x < 0) return res;
-	if (d == 1) {
-		res.x = 1./it.x; res.y = 1./it.x; res.z = 1./it.x;
-		return res;
-	}
-
-	for (int i = 0; i < 8; i++) {
-		vec4f col;
-		vec3f nro;
-		vec3f ofst = {
-			(float)(i % 2)     - 0.5,
-			(float)(i % 4 / 2) - 0.5,
-			(float)(i / 4)     - 0.5
-		};
-		nro = sumVec3fVec3f(ro, ofst);
-		col = trayce(nro, rd, &(oct->nodes[i]));
-		if (col.w == 1) {
-			res.x = col.x; res.y = col.y; res.z = col.z;
-		}
-	}
-
-	return res;
-}
-
 kernel void kmain(
 	global vec3f *ro, global mat3 *rot,
 	global vec3f *output, global int *_width, global int *_height,
-	global struct Octree *oct) {
+	global char *m,
+	local char* cache) {
+
+	//mallocArray = cache;
+
+	//struct Node node;
+
+	//initNode(&node, 3, 0, m);
 
 	int width = *_width;
 	int height = *_height;
@@ -236,7 +241,7 @@ kernel void kmain(
 	vec3f rd; rd.x = u; rd.y = v; rd.z = 1;
 	rd = mulVec3fMat3(normalize(rd), *rot);
 
-	vec3f col = {oct->size, oct->size, oct->size};
+	vec3f col = {0,0,0};
 	//col = render(*ro, rd, oct, 1);
 	output[id] = col;
 }
