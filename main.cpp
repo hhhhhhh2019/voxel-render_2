@@ -6,102 +6,48 @@
 using namespace sf;
 
 
-#define width  360
-#define height 240
+#define width  720
+#define height 480
 
 
 Node *octree;
-char *kernel_prog;
 vec3f output[width * height];
 
-char model[64] = {
-	1,1,1,1, 1,1,1,1, 1,1,1,1, 0,0,0,0,
-	1,1,1,1, 1,1,1,1, 1,1,1,1, 0,0,0,0,
-	1,1,1,1, 1,1,1,1, 1,1,1,1, 0,0,0,0,
-	1,1,1,1, 1,1,1,1, 1,1,1,1, 0,0,0,0
+typedef Glsl::Vec4 vec4g;
+
+vec4g model[64] = {
+	vec4g(0,0,0,0),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(0,0,0,0),
+	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(1,1,1,1),
+
+	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(1,1,1,1),
+	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(0,0,0,0),
+
+	vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),
+	vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),
+
+	vec4g(0,0,0,0),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(1,1,1,1),
+	vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(1,1,1,1),
+
+	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(0,0,0,0),
+	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),
+
+	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),
+	vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),
+
+	vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),
+	vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(1,1,1,1),vec4g(1,1,1,1),
+
+	vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(1,1,1,1),vec4g(1,1,1,1),
+	vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(1,1,1,1),vec4g(1,1,1,1)
 };
 
 int main() {
-	kernel_prog = read_file((char*)"render.cl");
-
 	srand(time(NULL));
 
 
-	octree = new Node(3, 0, model);
+	//octree = new Node(3, 0, model);
 
-	octree->getVisible();
-
-
-	printf("Init OpenCL\n");
-
-	cl::Platform platform = findCL2Platform();
-
-	if (platform() == 0) {
-		printf("No OpenCL 2 platform found.\n");
-		return -1;
-	}
-
-	std::vector<cl::Device> devices;
-	platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
-
-	if (devices.size() == 0) {
-		printf("No OpenCL 2 GPU found.\n");
-		return -1;
-	}
-
-	cl::Device device = devices[0];
-
-
-	printf("Device info:\n\t");
-	printf("CL_DEVICE_NAME: %s", device.getInfo<CL_DEVICE_NAME>().c_str());
-	printf("\n\t");
-	printf("CL_DEVICE_VENDOR: %s", device.getInfo<CL_DEVICE_VENDOR>().c_str());
-	printf("\n\t");
-	printf("CL_DEVICE_VERSION: %s", device.getInfo<CL_DEVICE_VERSION>().c_str());
-	printf("\n\t");
-	printf("CL_DEVICE_ADDRESS_BITS: %i", device.getInfo<CL_DEVICE_ADDRESS_BITS>());
-	printf("\n\t");
-	printf("CL_DEVICE_AVAILABLE: %i", device.getInfo<CL_DEVICE_AVAILABLE>());
-	printf("\n\t");
-	printf("CL_DEVICE_COMPILER_AVAILABLE: %i", device.getInfo<CL_DEVICE_COMPILER_AVAILABLE>());
-	printf("\n\t");
-	printf("CL_DEVICE_TYPE: %i", device.getInfo<CL_DEVICE_TYPE>());
-
-	printf("\n");
-
-	cl_int err;
-
-	cl::Context context(device);
-	cl::CommandQueue queue(context, device, 0, &err);
-
-	if (err != CL_SUCCESS) {
-		printf("Unable to create OpenCL command queue!\nError: %i", err);
-		return -1;
-	}
-
-	cl::Program program(kernel_prog);
-
-	try {
-    program.build("-cl-std=CL2.0");
-  }
-  catch (cl::BuildError e) {
-    printf("Error building program render.cl: ");
-		printf((char*)e.what());
-		printf("\n");
-    for (auto &pair : e.getBuildLog()) {
-      printf(pair.second.c_str());
-			printf("\n");
-    }
-
-    return -1;
-  }
-
-	cl::KernelFunctor<cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer, cl::Buffer> kernel(program, "kmain", &err);
-
-	if (err != CL_SUCCESS) {
-		printf("Unable to create kernel!\nError: %i", err);
-		return -1;
-	}
+	//octree->getVisible();
 
 
 	Font font;
@@ -120,24 +66,27 @@ int main() {
 
 	Mouse::setPosition(Vector2i(width / 2, height / 2), window);
 
-	vec3f ro(0,0,-10);
+
+	Shader shader;
+
+	if (!shader.loadFromFile("shader.frag", Shader::Fragment)) {
+		printf("can't load shader");
+		return 1;
+	}
+
+	shader.setUniform("resolution", Vector2f(width,height));
+	shader.setUniform("size", 3);
+	shader.setUniformArray("model", model, 64);
+
+
+	vec3f ro(0,0,-100);
 	vec3f rot(0,0,0);
 	vec3f vel;
-	float cam_speed = 0.2;
+	float cam_speed = 1;
 	float cam_rot = 0.01;
 
 	int _w = width;
 	int _h = height;
-
-	cl::Buffer roBuf(context, CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(float) * 3);
-	cl::Buffer rotBuf(context, CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(float) * 9);
-	cl::Buffer outBuf(std::begin(output), std::end(output), true);
-	cl::Buffer widthBuf(&_w, &_w + sizeof(int), true);
-	cl::Buffer heightBuf(&_h, &_h + sizeof(int), true);
-	cl::Buffer objBuf(context, CL_MEM_READ_ONLY | CL_MEM_HOST_WRITE_ONLY, sizeof(char) * 64);
-	cl::Buffer cache(context, CL_MEM_READ_WRITE, sizeof(char) * 30 * 16);
-
-	unsigned char pixels[width * height * 4];
 
 	while (window.isOpen()) {
 		Event event;
@@ -149,7 +98,7 @@ int main() {
 				float mx = event.mouseMove.x - width / 2;
 				float my = event.mouseMove.y - height / 2;
 
-				rot.x -= my * cam_rot;
+				rot.x += my * cam_rot;
 				rot.y -= mx * cam_rot;
 			}
 			else if (event.type == Event::KeyPressed) {
@@ -192,29 +141,24 @@ int main() {
 
 		window.clear();
 
-		clEnqueueWriteBuffer(queue(), roBuf(),  true, 0, sizeof(float) * 3, &ro,  0, NULL, NULL);
-		clEnqueueWriteBuffer(queue(), rotBuf(), true, 0, sizeof(float) * 9, &rot_mat, 0, NULL, NULL);
-		clEnqueueWriteBuffer(queue(), objBuf(), true, 0, sizeof(char) * 64, &model, 0, NULL, NULL);
 
-		kernel(cl::EnqueueArgs(cl::NDRange(width * height)),
-			roBuf, rotBuf, outBuf, widthBuf, heightBuf, objBuf, cache);
+		shader.setUniform("ro", Vector3f(ro.x,ro.y,ro.z));
+		shader.setUniform("rot", Glsl::Mat3(new float[]{
+			rot_mat.a,rot_mat.b,rot_mat.c,
+			rot_mat.d,rot_mat.e,rot_mat.f,
+			rot_mat.g,rot_mat.h,rot_mat.i
+		}));
 
-		cl::copy(outBuf, std::begin(output), std::end(output));
 
-		for (int i = 0; i < width * height; i++) {
-			pixels[i * 4 + 0] = output[i].x * 255;
-			pixels[i * 4 + 1] = output[i].y * 255;
-			pixels[i * 4 + 2] = output[i].z * 255;
-			pixels[i * 4 + 3] = 255;
-		}
+		RenderTexture image;
+		image.create(width, height);
 
-		Image img;
-		img.create(width, height, pixels);
+		Sprite drawable(image.getTexture());
 
-		Texture texture;
-		texture.loadFromImage(img);
-		Sprite sprite;
-		sprite.setTexture(texture, true);
+		image.draw(drawable, &shader);
+		image.display();
+
+		window.draw(drawable);
 
 
 		float currentTime = clock.getElapsedTime().asSeconds();

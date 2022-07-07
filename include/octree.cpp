@@ -22,7 +22,7 @@ vec2f box(vec3f ro, vec3f rd, vec3f rad) { //, vec3f& oN)  {
 int getSize(int n) {
 	int r = 1;
 
-	for (int i = 0; i < n; i++) r *= 2;
+	for (int i = 0; i < n - 1; i++) r *= 2;
 
 	return r;
 }
@@ -43,7 +43,7 @@ struct Node {
 	void init(int _size, int _id, char *m) {
 		id = _id;
 
-		size = getSize(_size - 1);
+		size = getSize(_size);
 		color = vec3<unsigned char>(
 			rand() & 255,
 			rand() & 255,
@@ -79,7 +79,7 @@ struct Node {
 		if (visible == 0 || size == 1) finish = 1;
 		else finish = 0;
 
-		printf("%i\n", visible);
+		//printf("%i\n", visible);
 
 		return visible;
 	}

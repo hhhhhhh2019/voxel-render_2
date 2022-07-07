@@ -1,18 +1,5 @@
-#include <CL/opencl.hpp>
+#include <cstdio>
 
-
-cl::Platform findCL2Platform() {
-  std::vector<cl::Platform> platforms;
-  cl::Platform::get(&platforms);
-
-  for (auto &p : platforms) {
-    std::string version = p.getInfo<CL_PLATFORM_VERSION>();
-    if (version.find("OpenCL 2.") != std::string::npos) {
-      return p;
-    }
-  }
-  return cl::Platform();
-}
 
 char* read_file(char *filename) {
 	FILE* file;
