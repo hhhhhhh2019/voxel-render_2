@@ -15,34 +15,58 @@ vec3f output[width * height];
 
 typedef Glsl::Vec4 vec4g;
 
-vec4g model[64] = {
-	vec4g(0,0,0,0),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(0,0,0,0),
-	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(1,1,1,1),
+vec4g model[512] = {
+	/*vec4g(0,0,0,0),   vec4g(.4,.4,.4,1),vec4g(0,0,0,0),   vec4g(0,0,0,0),
+	vec4g(.4,.4,.4,1),vec4g(.4,.4,.4,1),vec4g(0,0,0,0),   vec4g(.1,.9,.1,-2),
 
-	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(1,1,1,1),
-	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(0,0,0,0),
+	vec4g(.4,.4,.4,1),vec4g(.4,.4,.4,1),vec4g(0,0,0,0),   vec4g(.4,.5,.9,1),
+	vec4g(.4,.4,.4,1),vec4g(.4,.4,.4,1),vec4g(0,0,0,0),   vec4g(0,0,0,0),
 
-	vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),
-	vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),
+	vec4g(0,0,0,0),   vec4g(0,0,0,0),   vec4g(0,0,0,0),   vec4g(0,0,0,0),
+	vec4g(0,0,0,0),   vec4g(0,0,0,0),   vec4g(0,0,0,0),   vec4g(0,0,0,0),
 
-	vec4g(0,0,0,0),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(1,1,1,1),
-	vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(1,1,1,1),
+	vec4g(0,0,0,0),   vec4g(.4,.5,.9,1),vec4g(0,0,0,0),   vec4g(.4,.5,.9,1),
+	vec4g(0,0,0,0),   vec4g(0,0,0,0),   vec4g(0,0,0,0),   vec4g(.9,.3,.3,1),
 
-	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(0,0,0,0),
-	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),
+	vec4g(.4,.4,.4,1),vec4g(.4,.4,.4,1),vec4g(0,0,0,0),   vec4g(0,0,0,0),
+	vec4g(.4,.4,.4,1),vec4g(.4,.4,.4,1),vec4g(.4,.5,.9,1),vec4g(0,0,0,0),
 
-	vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(1,1,1,1),vec4g(0,0,0,0),
-	vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),
+	vec4g(.4,.4,.4,1),vec4g(.4,.4,.4,1),vec4g(.4,.5,.9,1),vec4g(0,0,0,0),
+	vec4g(.4,.4,.4,1),vec4g(0,0,0,0),   vec4g(0,0,0,0),   vec4g(0,0,0,0),
 
-	vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(0,0,0,0),
-	vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(1,1,1,1),vec4g(1,1,1,1),
+	vec4g(0,0,0,0),   vec4g(0,0,0,0),   vec4g(0,0,0,0),   vec4g(0,0,0,0),
+	vec4g(.4,.5,.9,1),vec4g(0,0,0,0),   vec4g(.4,.5,.9,1),vec4g(.9,.3,.3,1),
 
-	vec4g(1,1,1,1),vec4g(0,0,0,0),vec4g(1,1,1,1),vec4g(1,1,1,1),
-	vec4g(0,0,0,0),vec4g(0,0,0,0),vec4g(1,1,1,1),vec4g(1,1,1,1)
+	vec4g(.4,.5,.9,1),vec4g(0,0,0,0),   vec4g(.4,.5,.9,1),vec4g(.9,.3,.3,1),
+	vec4g(0,0,0,0),   vec4g(0,0,0,0),   vec4g(.9,.3,.3,1),vec4g(.9,.3,.3,1)*/
 };
 
 int main() {
 	srand(time(NULL));
+
+	/*for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			for (int k = 0; k < 8; k++) {
+				int id = i * 8 * 8 + j * 8 + k;
+
+				model[id] = vec4g(1,1,1,-2);
+				//if (rand() > RAND_MAX / 2) model[id].w = -2;
+
+				int x = k % 2;// * 2 + (7 - j) % 2;
+				int y = (7 - i) % 4 / 2;// / 2 + (7 - j) % 4 / 2;
+				int z = (7 - i) / 4;// + (y - j) / 4;
+
+				//printf("%i %i\n", x, id);
+
+				if (x == 1) model[id] = vec4g(1,1,1,-2);
+				//if (x == 3) model[id] = vec4g(1,1,1,-2);
+			}
+		}
+	}*/
+
+	for (int i = 0; i < 512; i++) {
+		model[i] = vec4g(1,1,1,-2);
+	}
 
 
 	//octree = new Node(3, 0, model);
@@ -75,18 +99,28 @@ int main() {
 	}
 
 	shader.setUniform("resolution", Vector2f(width,height));
-	shader.setUniform("size", 3);
-	shader.setUniformArray("model", model, 64);
+	shader.setUniform("size", 4);
+	shader.setUniformArray("model", model, 512);
+
+	//shader.setUniform("u_seed1", Vector2f(rand(), rand()));//*999));
+	//shader.setUniform("u_seed2", Vector2f(rand(), rand()));//*999));
 
 
-	vec3f ro(0,0,-100);
-	vec3f rot(0,0,0);
+	vec3f ro(0,0,-256);//(-10,5,-10);
+	vec3f rot(0,0,0);//(3.14 / 8.7,-3.14 / 4,0);
 	vec3f vel;
 	float cam_speed = 1;
 	float cam_rot = 0.01;
 
-	int _w = width;
-	int _h = height;
+	/*int _w = width;
+	int _h = height;*/
+
+	RenderTexture image;
+	image.create(width, height);
+
+	Sprite drawable(image.getTexture());
+
+	bool useBackBuffer = false;
 
 	while (window.isOpen()) {
 		Event event;
@@ -98,8 +132,12 @@ int main() {
 				float mx = event.mouseMove.x - width / 2;
 				float my = event.mouseMove.y - height / 2;
 
-				rot.x += my * cam_rot;
-				rot.y -= mx * cam_rot;
+				if (length(vec2f(mx,my)) > 1) {
+					rot.x += my * cam_rot;
+					rot.y -= mx * cam_rot;
+
+					useBackBuffer = false;
+				}
 			}
 			else if (event.type == Event::KeyPressed) {
 				if (event.key.code == Keyboard::Escape) {
@@ -123,16 +161,18 @@ int main() {
 			}
 		}
 
+		if (length(vel) != 0) useBackBuffer = false;
+
 		mat3 rot_mat = mat3(
 			cos(rot.z), -sin(rot.z), 0,
-			sin(rot.z), cos(rot.z), 0,
-			0,       0, 1
+			sin(rot.z), cos(rot.z),  0,
+			0,          0,           1
 		) * mat3(
 			cos(rot.y), 0, -sin(rot.y),
-			0,      1, 0,
+			0,          1, 0,
 			sin(rot.y), 0, cos(rot.y)
 		) * mat3(
-			1,       0, 0,
+			1, 0,          0,
 			0, cos(rot.x), -sin(rot.x),
 			0, sin(rot.x), cos(rot.x)
 		);
@@ -148,17 +188,17 @@ int main() {
 			rot_mat.d,rot_mat.e,rot_mat.f,
 			rot_mat.g,rot_mat.h,rot_mat.i
 		}));
-
-
-		RenderTexture image;
-		image.create(width, height);
-
-		Sprite drawable(image.getTexture());
+		shader.setUniform("u_seed1", Vector2f((float)rand() / RAND_MAX - 0.5, ((float)rand() / RAND_MAX - 0.5) * 999));
+		shader.setUniform("u_seed2", Vector2f((float)rand() / RAND_MAX - 0.5, ((float)rand() / RAND_MAX - 0.5) * 999));
+		shader.setUniform("backBuffer", image.getTexture());
+		shader.setUniform("useBackBuffer", useBackBuffer);
 
 		image.draw(drawable, &shader);
 		image.display();
 
 		window.draw(drawable);
+
+		useBackBuffer = true;
 
 
 		float currentTime = clock.getElapsedTime().asSeconds();

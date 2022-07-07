@@ -213,6 +213,10 @@ float length(vec3f v) {
 	return powf((v.x * v.x + v.y * v.y + v.z * v.z), 0.5);
 }
 
+float length(vec2f v) {
+	return powf((v.x * v.x + v.y * v.y), 0.5);
+}
+
 vec3f normalize(vec3f v) {
 	return v / length(v);
 }
