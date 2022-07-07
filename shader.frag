@@ -149,7 +149,7 @@ vec4 trayce6(vec3 ro, vec3 rd, int s, int d, inout vec2 pit, int id, int _s, out
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce7(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, id * ipow(8, _s - 1) + i, _s - 1, norm);
+		vec4 col = trayce7(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, id + i * ipow(8, _s - 2), _s - 1, norm);
 
 		if (col.w != 0) res = col;
 	}
@@ -180,7 +180,7 @@ vec4 trayce5(vec3 ro, vec3 rd, int s, int d, inout vec2 pit, int id, int _s, out
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce6(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, id * ipow(8, _s - 1) + i, _s - 1, norm);
+		vec4 col = trayce6(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, id + i * ipow(8, _s - 2), _s - 1, norm);
 
 		if (col.w != 0) res = col;
 	}
@@ -211,7 +211,7 @@ vec4 trayce4(vec3 ro, vec3 rd, int s, int d, inout vec2 pit, int id, int _s, out
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce5(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, id * ipow(8, _s - 1) + i, _s - 1, norm);
+		vec4 col = trayce5(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, id + i * ipow(8, _s - 2), _s - 1, norm);
 
 		if (col.w != 0) res = col;
 	}
@@ -242,7 +242,7 @@ vec4 trayce3(vec3 ro, vec3 rd, int s, int d, inout vec2 pit, int id, int _s, out
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce4(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, id * ipow(8, _s - 1) + i, _s - 1, norm);
+		vec4 col = trayce4(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, id + i * ipow(8, _s - 2), _s - 1, norm);
 
 		if (col.w != 0) res = col;
 	}
@@ -273,7 +273,7 @@ vec4 trayce2(vec3 ro, vec3 rd, int s, int d, inout vec2 pit, int id, int _s, out
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce3(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, id * ipow(8, _s - 1) + i, _s - 1, norm);
+		vec4 col = trayce3(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, id + i * ipow(8, _s - 2), _s - 1, norm);
 
 		if (col.w != 0) res = col;
 	}
@@ -304,7 +304,7 @@ vec4 trayce(inout vec3 ro, inout vec3 rd, int s, int d, int _s) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce2(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, i, _s - 1, norm);
+		vec4 col = trayce2(ro - vec3(x,y,z) * s, rd, s / 2, d - 1, nit, i * ipow(8, _s - 2), _s - 1, norm);
 
 		if (col.w != 0) res = col;
 	}
@@ -337,7 +337,7 @@ vec3 render(vec3 ro, vec3 rd) {
 	vec3 col = vec3(1);
 
 	for (int i = 0; i < MAX_REFL; i++) {
-		vec4 nc = trayce(ro, rd,getSize(size),size,size);
+		vec4 nc = trayce(ro, rd, getSize(size),size,size-1);
 
 		col *= nc.rgb;
 

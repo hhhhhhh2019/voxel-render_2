@@ -44,29 +44,32 @@ vec4g model[512] = {
 int main() {
 	srand(time(NULL));
 
-	/*for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			for (int k = 0; k < 8; k++) {
 				int id = i * 8 * 8 + j * 8 + k;
 
-				model[id] = vec4g(1,1,1,-2);
+				model[id] = vec4g(0,0,0,0);
 				//if (rand() > RAND_MAX / 2) model[id].w = -2;
 
-				int x = k % 2;// * 2 + (7 - j) % 2;
-				int y = (7 - i) % 4 / 2;// / 2 + (7 - j) % 4 / 2;
-				int z = (7 - i) / 4;// + (y - j) / 4;
+				int x = i % 2 * 4 + j % 2 * 2 + k % 2;
+				int y = (i % 4 / 2) * 4 + (j % 4 / 2) * 2 + k % 4 / 2;
+				int z = i / 4 * 4 + j / 4 * 2 + k / 4;
 
 				//printf("%i %i\n", x, id);
 
-				if (x == 1) model[id] = vec4g(1,1,1,-2);
-				//if (x == 3) model[id] = vec4g(1,1,1,-2);
+				float r = (float)(rand() % 255) / 255;
+				float g = (float)(rand() % 255) / 255;
+				float b = (float)(rand() % 255) / 255;
+
+				if (x == 0 && z == 0) model[id] = vec4g(r,g,b,-2);
 			}
 		}
-	}*/
-
-	for (int i = 0; i < 512; i++) {
-		model[i] = vec4g(1,1,1,-2);
 	}
+
+	/*for (int i = 0; i < 512; i++) {
+		model[i] = vec4g(1,1,1,-2);
+	}*/
 
 
 	//octree = new Node(3, 0, model);
@@ -106,7 +109,7 @@ int main() {
 	//shader.setUniform("u_seed2", Vector2f(rand(), rand()));//*999));
 
 
-	vec3f ro(0,0,-256);//(-10,5,-10);
+	vec3f ro(0,0,-128);//(-10,5,-10);
 	vec3f rot(0,0,0);//(3.14 / 8.7,-3.14 / 4,0);
 	vec3f vel;
 	float cam_speed = 1;
