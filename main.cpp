@@ -63,26 +63,26 @@ int main() {
 				float b = (float)rand() / RAND_MAX;
 
 				if (x == 0 && z == 0) model[id] = vec4g(r,g,b,-2);
-				//if (x == 7 && z == 0) model[id] = vec4g(r,g,b,-2);
-				//if (x == 0 && z == 7) model[id] = vec4g(r,g,b,-2);
-				//if (x == 7 && z == 7) model[id] = vec4g(r,g,b,-2);
-				//if (y == 0 && z == 0) model[id] = vec4g(r,g,b,-2);
-				//if (y == 7 && z == 0) model[id] = vec4g(r,g,b,-2);
-				//if (y == 0 && z == 7) model[id] = vec4g(r,g,b,-2);
-				//if (y == 7 && z == 7) model[id] = vec4g(r,g,b,-2);
-				//if (x == 0 && y == 0) model[id] = vec4g(r,g,b,-2);
-				//if (x == 7 && y == 0) model[id] = vec4g(r,g,b,-2);
-				//if (x == 0 && y == 7) model[id] = vec4g(r,g,b,-2);
-				//if (x == 7 && y == 7) model[id] = vec4g(r,g,b,-2);
+				if (x == 7 && z == 0) model[id] = vec4g(r,g,b,-2);
+				if (x == 0 && z == 7) model[id] = vec4g(r,g,b,-2);
+				if (x == 7 && z == 7) model[id] = vec4g(r,g,b,-2);
+				if (y == 0 && z == 0) model[id] = vec4g(r,g,b,-2);
+				if (y == 7 && z == 0) model[id] = vec4g(r,g,b,-2);
+				if (y == 0 && z == 7) model[id] = vec4g(r,g,b,-2);
+				if (y == 7 && z == 7) model[id] = vec4g(r,g,b,-2);
+				if (x == 0 && y == 0) model[id] = vec4g(r,g,b,-2);
+				if (x == 7 && y == 0) model[id] = vec4g(r,g,b,-2);
+				if (x == 0 && y == 7) model[id] = vec4g(r,g,b,-2);
+				if (x == 7 && y == 7) model[id] = vec4g(r,g,b,-2);
 
-				if (x == 3 && y == 3 && z == 3) model[id] = vec4g(1,1,1,1);//1);
-				if (x == 4 && y == 3 && z == 3) model[id] = vec4g(1,1,1,1);//1.9);
-				if (x == 3 && y == 4 && z == 3) model[id] = vec4g(1,1,1,2);//2);
-				if (x == 4 && y == 4 && z == 3) model[id] = vec4g(1,1,1,1);//1.5);
-				if (x == 3 && y == 3 && z == 4) model[id] = vec4g(1,1,1,1);//1.2);
-				if (x == 4 && y == 3 && z == 4) model[id] = vec4g(1,1,1,1);//1.4);
-				if (x == 3 && y == 4 && z == 4) model[id] = vec4g(1,1,1,1);//1);
-				if (x == 4 && y == 4 && z == 4) model[id] = vec4g(1,1,1,1);//1.8);
+				if (x == 3 && y == 3 && z == 3) model[id] = vec4g(1,1,1,1);
+				if (x == 4 && y == 3 && z == 3) model[id] = vec4g(1,1,1,1.9);
+				if (x == 3 && y == 4 && z == 3) model[id] = vec4g(1,1,1,2);
+				if (x == 4 && y == 4 && z == 3) model[id] = vec4g(1,1,1,1.5);
+				if (x == 3 && y == 3 && z == 4) model[id] = vec4g(1,1,1,1.2);
+				if (x == 4 && y == 3 && z == 4) model[id] = vec4g(1,1,1,1.4);
+				if (x == 3 && y == 4 && z == 4) model[id] = vec4g(1,1,1,1);
+				if (x == 4 && y == 4 && z == 4) model[id] = vec4g(1,1,1,1.8);
 			}
 		}
 	}
