@@ -58,9 +58,9 @@ int main() {
 
 				//printf("%i %i\n", x, id);
 
-				float r = 1;
-				float g = 1;
-				float b = 1;
+				float r = (float)rand() / RAND_MAX;
+				float g = (float)rand() / RAND_MAX;
+				float b = (float)rand() / RAND_MAX;
 
 				if (x == 0 && z == 0) model[id] = vec4g(r,g,b,-2);
 				if (x == 7 && z == 0) model[id] = vec4g(r,g,b,-2);
@@ -75,14 +75,14 @@ int main() {
 				if (x == 0 && y == 7) model[id] = vec4g(r,g,b,-2);
 				if (x == 7 && y == 7) model[id] = vec4g(r,g,b,-2);
 
-				if (x == 3 && y == 3 && z == 3) model[id] = vec4g(r,g,b,1);
-				if (x == 4 && y == 3 && z == 3) model[id] = vec4g(r,g,b,1);
-				if (x == 3 && y == 4 && z == 3) model[id] = vec4g(r,g,b,1);
-				if (x == 4 && y == 4 && z == 3) model[id] = vec4g(r,g,b,1);
-				if (x == 3 && y == 3 && z == 4) model[id] = vec4g(r,g,b,1);
-				if (x == 4 && y == 3 && z == 4) model[id] = vec4g(r,g,b,1);
-				if (x == 3 && y == 4 && z == 4) model[id] = vec4g(r,g,b,1);
-				if (x == 4 && y == 4 && z == 4) model[id] = vec4g(r,g,b,1);
+				if (x == 3 && y == 3 && z == 3) model[id] = vec4g(r,g,b,1.9);
+				if (x == 4 && y == 3 && z == 3) model[id] = vec4g(r,g,b,1.9);
+				if (x == 3 && y == 4 && z == 3) model[id] = vec4g(r,g,b,1.9);
+				if (x == 4 && y == 4 && z == 3) model[id] = vec4g(r,g,b,1.9);
+				if (x == 3 && y == 3 && z == 4) model[id] = vec4g(r,g,b,1.9);
+				if (x == 4 && y == 3 && z == 4) model[id] = vec4g(r,g,b,1.9);
+				if (x == 3 && y == 4 && z == 4) model[id] = vec4g(r,g,b,1.9);
+				if (x == 4 && y == 4 && z == 4) model[id] = vec4g(r,g,b,1.9);
 			}
 		}
 	}
