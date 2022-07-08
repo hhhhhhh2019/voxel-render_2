@@ -58,11 +58,31 @@ int main() {
 
 				//printf("%i %i\n", x, id);
 
-				float r = (float)(rand() % 255) / 255;
-				float g = (float)(rand() % 255) / 255;
-				float b = (float)(rand() % 255) / 255;
+				float r = 1;
+				float g = 1;
+				float b = 1;
 
 				if (x == 0 && z == 0) model[id] = vec4g(r,g,b,-2);
+				if (x == 7 && z == 0) model[id] = vec4g(r,g,b,-2);
+				if (x == 0 && z == 7) model[id] = vec4g(r,g,b,-2);
+				if (x == 7 && z == 7) model[id] = vec4g(r,g,b,-2);
+				if (y == 0 && z == 0) model[id] = vec4g(r,g,b,-2);
+				if (y == 7 && z == 0) model[id] = vec4g(r,g,b,-2);
+				if (y == 0 && z == 7) model[id] = vec4g(r,g,b,-2);
+				if (y == 7 && z == 7) model[id] = vec4g(r,g,b,-2);
+				if (x == 0 && y == 0) model[id] = vec4g(r,g,b,-2);
+				if (x == 7 && y == 0) model[id] = vec4g(r,g,b,-2);
+				if (x == 0 && y == 7) model[id] = vec4g(r,g,b,-2);
+				if (x == 7 && y == 7) model[id] = vec4g(r,g,b,-2);
+
+				if (x == 3 && y == 3 && z == 3) model[id] = vec4g(r,g,b,1);
+				if (x == 4 && y == 3 && z == 3) model[id] = vec4g(r,g,b,1);
+				if (x == 3 && y == 4 && z == 3) model[id] = vec4g(r,g,b,1);
+				if (x == 4 && y == 4 && z == 3) model[id] = vec4g(r,g,b,1);
+				if (x == 3 && y == 3 && z == 4) model[id] = vec4g(r,g,b,1);
+				if (x == 4 && y == 3 && z == 4) model[id] = vec4g(r,g,b,1);
+				if (x == 3 && y == 4 && z == 4) model[id] = vec4g(r,g,b,1);
+				if (x == 4 && y == 4 && z == 4) model[id] = vec4g(r,g,b,1);
 			}
 		}
 	}
@@ -102,17 +122,17 @@ int main() {
 	}
 
 	shader.setUniform("resolution", Vector2f(width,height));
-	shader.setUniform("size", 4);
+	shader.setUniform("model_size", 12);
 	shader.setUniformArray("model", model, 512);
 
 	//shader.setUniform("u_seed1", Vector2f(rand(), rand()));//*999));
 	//shader.setUniform("u_seed2", Vector2f(rand(), rand()));//*999));
 
 
-	vec3f ro(0,0,-128);//(-10,5,-10);
+	vec3f ro(256,0,-256);//(-10,5,-10);
 	vec3f rot(0,0,0);//(3.14 / 8.7,-3.14 / 4,0);
 	vec3f vel;
-	float cam_speed = 1;
+	float cam_speed = 5;
 	float cam_rot = 0.01;
 
 	/*int _w = width;
@@ -185,8 +205,8 @@ int main() {
 		window.clear();
 
 
-		shader.setUniform("ro", Vector3f(ro.x,ro.y,ro.z));
-		shader.setUniform("rot", Glsl::Mat3(new float[]{
+		shader.setUniform("cam_pos", Vector3f(ro.x,ro.y,ro.z));
+		shader.setUniform("cam_rot", Glsl::Mat3(new float[]{
 			rot_mat.a,rot_mat.b,rot_mat.c,
 			rot_mat.d,rot_mat.e,rot_mat.f,
 			rot_mat.g,rot_mat.h,rot_mat.i

@@ -57,7 +57,7 @@ struct Node {
 		} else {
 			childs = new Node[8];
 			for (int i = 0; i < 8; i++)
-				childs[i].init(_size - 1, _id * (int)(pow(8, _size - 1)) + i, m);
+				childs[i].init(_size - 1, i * (int)(pow(8, _size - 1)) + _id, m);
 		}
 	}
 
