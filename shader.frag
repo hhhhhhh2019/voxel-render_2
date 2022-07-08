@@ -8,9 +8,10 @@ uniform vec2 resolution;
 uniform vec3 cam_pos;
 uniform mat3 cam_rot;
 uniform int model_size;
+uniform vec4 model[512];
 
 
-#define voxInNode 5
+#define voxInNode 8
 
 
 vec2 box(in vec3 ro, in vec3 rd, in vec3 rad, out vec3 oN)  {
@@ -34,8 +35,14 @@ int getSize(int s) {
 	return r;
 }
 
+int ipow(int a, int n) {
+	if (n == 0) return 1;
+	for (int i = 0; i < n; i++) a *= a;
+	return a;
+}
 
-vec4 trayce12(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+
+vec4 trayce12(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
@@ -46,14 +53,15 @@ vec4 trayce12(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return vec4(abs(n), 1);
 }
 
-vec4 trayce11(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+vec4 trayce11(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
+		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
-		return vec4(abs(n),1);
+		return model[id];
 	}
 
 	vec4 res;
@@ -64,7 +72,7 @@ vec4 trayce11(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce12(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce12(ro - vec3(x, y, z) * size, rd, size / 2, minIt, id + i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -75,14 +83,15 @@ vec4 trayce11(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return res;
 }
 
-vec4 trayce10(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+vec4 trayce10(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
+		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
-		return vec4(abs(n),1);
+		return model[id];
 	}
 
 	vec4 res;
@@ -93,7 +102,7 @@ vec4 trayce10(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce11(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce11(ro - vec3(x, y, z) * size, rd, size / 2, minIt, id + i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -104,14 +113,15 @@ vec4 trayce10(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return res;
 }
 
-vec4 trayce9(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+vec4 trayce9(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
+		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
-		return vec4(abs(n),1);
+		return model[id];
 	}
 
 	vec4 res;
@@ -122,7 +132,7 @@ vec4 trayce9(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce10(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce10(ro - vec3(x, y, z) * size, rd, size / 2, minIt, id + i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -133,14 +143,15 @@ vec4 trayce9(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return res;
 }
 
-vec4 trayce8(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+vec4 trayce8(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
+		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
-		return vec4(abs(n),1);
+		return model[id];
 	}
 
 	vec4 res;
@@ -151,7 +162,7 @@ vec4 trayce8(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce9(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce9(ro - vec3(x, y, z) * size, rd, size / 2, minIt, id + i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -162,14 +173,15 @@ vec4 trayce8(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return res;
 }
 
-vec4 trayce7(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+vec4 trayce7(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
+		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
-		return vec4(abs(n),1);
+		return model[id];
 	}
 
 	vec4 res;
@@ -180,7 +192,7 @@ vec4 trayce7(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce8(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce8(ro - vec3(x, y, z) * size, rd, size / 2, minIt, id + i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -191,14 +203,15 @@ vec4 trayce7(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return res;
 }
 
-vec4 trayce6(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+vec4 trayce6(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
+		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
-		return vec4(abs(n),1);
+		return model[id];
 	}
 
 	vec4 res;
@@ -209,7 +222,7 @@ vec4 trayce6(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce7(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce7(ro - vec3(x, y, z) * size, rd, size / 2, minIt, id + i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -220,14 +233,15 @@ vec4 trayce6(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return res;
 }
 
-vec4 trayce5(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+vec4 trayce5(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
+		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
-		return vec4(abs(n),1);
+		return model[id];
 	}
 
 	vec4 res;
@@ -238,7 +252,7 @@ vec4 trayce5(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce6(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce6(ro - vec3(x, y, z) * size, rd, size / 2, minIt, id + i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -249,14 +263,15 @@ vec4 trayce5(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return res;
 }
 
-vec4 trayce4(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+vec4 trayce4(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
+		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
-		return vec4(abs(n),1);
+		return model[id];
 	}
 
 	vec4 res;
@@ -267,7 +282,7 @@ vec4 trayce4(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce5(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce5(ro - vec3(x, y, z) * size, rd, size / 2, minIt, id + i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -278,14 +293,15 @@ vec4 trayce4(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return res;
 }
 
-vec4 trayce3(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+vec4 trayce3(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
+		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
-		return vec4(abs(n),1);
+		return model[id];
 	}
 
 	vec4 res;
@@ -296,7 +312,7 @@ vec4 trayce3(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce4(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce4(ro - vec3(x, y, z) * size, rd, size / 2, minIt, id + i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -307,14 +323,15 @@ vec4 trayce3(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return res;
 }
 
-vec4 trayce2(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
+vec4 trayce2(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
+		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
-		return vec4(abs(n),1);
+		return model[id];
 	}
 
 	vec4 res;
@@ -325,7 +342,7 @@ vec4 trayce2(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce3(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce3(ro - vec3(x, y, z) * size, rd, size / 2, minIt, id + i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -336,16 +353,16 @@ vec4 trayce2(vec3 ro, vec3 rd, int size, inout vec2 pMinIt) {
 	return res;
 }
 
-vec4 trayce1(vec3 ro, vec3 rd, int size) {
+vec4 trayce1(vec3 ro, vec3 rd, int size, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
 	if (it.x == -1 || it.x <= -size * 4) return vec4(0);
 	if (size == 1) {
-		return vec4(abs(n),1);
+		return model[0];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0.1,0.1,0.1,1);
 	vec2 minIt = vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -353,7 +370,7 @@ vec4 trayce1(vec3 ro, vec3 rd, int size) {
 		float y = float(i % 4 / 2) - 0.5;
 		float z = float(i / 4)     - 0.5;
 
-		vec4 col = trayce2(ro - vec3(x, y, z) * size, rd, size / 2, minIt);
+		vec4 col = trayce2(ro - vec3(x, y, z) * size, rd, size / 2, minIt, i * ipow(8, s - 1), s - 1);
 
 		if (col.w != 0) res = col;
 	}
@@ -367,7 +384,7 @@ void main() {
 
 	vec3 rd = normalize(vec3(uv,1)) * cam_rot;
 
-	vec3 color = trayce1(cam_pos, rd, getSize(model_size)).rgb;
+	vec3 color = trayce1(cam_pos, rd, getSize(model_size), model_size / 2).rgb;
 
 	gl_FragColor = vec4(color,1);
 }

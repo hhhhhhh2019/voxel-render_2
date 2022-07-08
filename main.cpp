@@ -122,17 +122,17 @@ int main() {
 	}
 
 	shader.setUniform("resolution", Vector2f(width,height));
-	shader.setUniform("model_size", 12);
+	shader.setUniform("model_size", 4);
 	shader.setUniformArray("model", model, 512);
 
 	//shader.setUniform("u_seed1", Vector2f(rand(), rand()));//*999));
 	//shader.setUniform("u_seed2", Vector2f(rand(), rand()));//*999));
 
 
-	vec3f ro(256,0,-256);//(-10,5,-10);
+	vec3f ro(0,0,-128);//(-10,5,-10);
 	vec3f rot(0,0,0);//(3.14 / 8.7,-3.14 / 4,0);
 	vec3f vel;
-	float cam_speed = 5;
+	float cam_speed = 1;
 	float cam_rot = 0.01;
 
 	/*int _w = width;
