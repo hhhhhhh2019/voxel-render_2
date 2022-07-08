@@ -109,7 +109,7 @@ vec4 trayce12(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 
 	pMinIt = it;
 
@@ -122,7 +122,7 @@ vec4 trayce11(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
 		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
@@ -130,7 +130,7 @@ vec4 trayce11(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3
 		return model[id];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = pMinIt;//vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -155,7 +155,7 @@ vec4 trayce10(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
 		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
@@ -163,7 +163,7 @@ vec4 trayce10(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3
 		return model[id];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = pMinIt;//vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -188,7 +188,7 @@ vec4 trayce9(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
 		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
@@ -196,7 +196,7 @@ vec4 trayce9(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 		return model[id];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = pMinIt;//vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -221,7 +221,7 @@ vec4 trayce8(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
 		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
@@ -229,7 +229,7 @@ vec4 trayce8(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 		return model[id];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = pMinIt;//vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -254,7 +254,7 @@ vec4 trayce7(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
 		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
@@ -262,7 +262,7 @@ vec4 trayce7(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 		return model[id];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = pMinIt;//vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -287,7 +287,7 @@ vec4 trayce6(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
 		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
@@ -295,7 +295,7 @@ vec4 trayce6(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 		return model[id];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = pMinIt;//vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -320,7 +320,7 @@ vec4 trayce5(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
 		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
@@ -328,7 +328,7 @@ vec4 trayce5(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 		return model[id];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = pMinIt;//vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -353,7 +353,7 @@ vec4 trayce4(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
 		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
@@ -361,7 +361,7 @@ vec4 trayce4(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 		return model[id];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = pMinIt;//vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -386,7 +386,7 @@ vec4 trayce3(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
 		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
@@ -394,7 +394,7 @@ vec4 trayce3(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 		return model[id];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = pMinIt;//vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -421,7 +421,7 @@ vec4 trayce2(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4 || pMinIt.x < it.x) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1) || pMinIt.x < it.x) return vec4(0);
 	if (size == 1) {
 		if (model[id].w == 0) return vec4(0);
 		pMinIt = it;
@@ -429,7 +429,7 @@ vec4 trayce2(vec3 ro, vec3 rd, int size, inout vec2 pMinIt, int id, int s, vec3 
 		return model[id];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = pMinIt;//vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -454,12 +454,12 @@ vec4 trayce1(inout vec3 ro, inout vec3 rd, int size, int s) {
 	vec3 n;
 	vec2 it = box(ro, rd, vec3(size), n);
 
-	if (it.x == -1 || it.x <= -size * 4) return vec4(0);
+	if ((size == 1 && it.x < 0) || ((it.x == -1 || it.x <= -size * 4) && size != 1)) return vec4(0);
 	if (size == 1) {
 		return model[0];
 	}
 
-	vec4 res;
+	vec4 res = vec4(0);
 	vec2 minIt = vec2(it.y);
 
 	for (int i = 0; i < voxInNode; i++) {
@@ -473,13 +473,13 @@ vec4 trayce1(inout vec3 ro, inout vec3 rd, int size, int s) {
 	}
 
 	if (res.w == -2) return res;
-	if (res.w == 0) return vec4(0);
+	//if (res.w == 0) return vec4(0);
 
 	vec3 reflected = reflect(rd, n);
 	vec3 diff      = normalize(randomOnSphere());
-	vec3 diffuse   = normalize(diff * dot(diff, n));
+	vec3 diffuse   = normalize(diff * dot(diff, -n));
 
-	ro += rd * (minIt.x - 0.001);
+	ro += rd * (minIt.x - 0.01);
 	rd = mix(diffuse, reflected, res.w - 1);
 
 	return res;
@@ -490,6 +490,8 @@ vec3 render(vec3 ro, vec3 rd) {
 
 	for (int i = 0; i < MAX_REFL; i++) {
 		vec4 nc = trayce1(ro, rd, getSize(model_size), model_size / 2);//trayce(ro, rd, getSize(size),size,size-1);
+
+		//if (nc.w == 0) return vec3(0);
 
 		col *= nc.rgb;
 
